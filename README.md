@@ -17,3 +17,11 @@ Warp [https://www.warp.dev/]
 
 Git [https://git-scm.com/]
 Github Desktop [https://desktop.github.com/]
+
+## Setup
+
+1. Clone the repository
+
+```bash
+git clone https://github.com/rodrigoBermejo/e-commerce.git
+```
