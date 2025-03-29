@@ -2,7 +2,7 @@
   "name": "ecommerce-api",
   "version": "1.0.0",
   "description": "API in express for ecommerce application",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,6 +10,7 @@
   "author": "@rodrigoBermejo",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "mongoose": "^8.13.1"
   }
