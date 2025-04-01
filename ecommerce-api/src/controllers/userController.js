@@ -1,6 +1,6 @@
 const User = require("../models/user");
 
-exports.getUsers = async (req, res) => {
+exports.getUsers = async (req, res, next) => {
   try {
     const users = await User.find();
     if (!users || users.length === 0) {
@@ -12,7 +12,7 @@ exports.getUsers = async (req, res) => {
   }
 };
 
-exports.getUserById = async (req, res) => {
+exports.getUserById = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) {
@@ -24,7 +24,7 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-exports.createUser = async (req, res) => {
+exports.createUser = async (req, res, next) => {
   const { userName, email, passwordHash, displayName, role } = req.body;
   // TODO: Encrypt passwordHash before saving
   try {
@@ -42,7 +42,7 @@ exports.createUser = async (req, res) => {
   }
 };
 
-exports.updateUser = async (req, res) => {
+exports.updateUser = async (req, res, next) => {
   try {
     const user = await User.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -56,7 +56,7 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-exports.deleteUser = async (req, res) => {
+exports.deleteUser = async (req, res, next) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {
