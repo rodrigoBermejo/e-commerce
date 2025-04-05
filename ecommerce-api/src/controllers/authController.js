@@ -1,6 +1,7 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const errorHandler = require("../middlewares/errorHandler");
 
 const generateToken = (userId, userName, role) => {
   return jwt.sign({ userId, userName, role }, process.env.JWT_SECRET, {
@@ -17,7 +18,29 @@ const hashPassword = async (password) => {
   return await bcrypt.hash(password, saltRounds);
 };
 
-exports.register = async (req, res) => {
+/**
+ * @swagger
+ * /register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             item:
+ *                $ref: '#/components/models/User'
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: User already exists
+ *       500:
+ *         description: Some server error
+ */
+exports.register = async (req, res, next) => {
   const { userName, email, password } = req.body;
   const displayName = userName;
   const role = "customer";
@@ -42,11 +65,46 @@ exports.register = async (req, res) => {
 
     res.status(201).send({ newUser });
   } catch (error) {
-    next(error);
+    errorHandler(error, req, res, next);
   }
 };
 
-exports.login = async (req, res) => {
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Login a user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User logged in successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *       400:
+ *         description: Invalid credentials
+ *       500:
+ *         description: Some server error
+ */
+exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -63,6 +121,6 @@ exports.login = async (req, res) => {
 
     res.status(200).json({ token });
   } catch (error) {
-    next(error);
+    errorHandler(error, req, res, next);
   }
 };

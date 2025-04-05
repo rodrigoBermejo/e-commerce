@@ -1,10 +1,27 @@
 const User = require("../models/user");
+const errorHandler = require("../middlewares/errorHandler");
 
 const hashPassword = async (password) => {
   const saltRounds = 10;
   return await bcrypt.hash(password, saltRounds);
 };
 
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Get all users
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: The list of users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ */
 exports.getUsers = async (req, res, next) => {
   try {
     const users = await User.find();
@@ -13,7 +30,7 @@ exports.getUsers = async (req, res, next) => {
     }
     res.status(200).json(users);
   } catch (error) {
-    next(error);
+    errorHandler(error, req, res, next);
   }
 };
 
@@ -25,7 +42,7 @@ exports.getUserById = async (req, res, next) => {
     }
     res.status(200).json(user);
   } catch (error) {
-    next(error);
+    errorHandler(error, req, res, next);
   }
 };
 
@@ -45,7 +62,7 @@ exports.createUser = async (req, res, next) => {
     await newUser.save();
     res.status(201).json(newUser);
   } catch (error) {
-    next(error);
+    errorHandler(error, req, res, next);
   }
 };
 
@@ -59,7 +76,7 @@ exports.updateUser = async (req, res, next) => {
     }
     res.status(200).json(user);
   } catch (error) {
-    next(error);
+    errorHandler(error, req, res, next);
   }
 };
 
@@ -71,6 +88,6 @@ exports.deleteUser = async (req, res, next) => {
     }
     res.status(204).json({ message: "User deleted successfully" });
   } catch (error) {
-    next(error);
+    errorHandler(error, req, res, next);
   }
 };

@@ -21,9 +21,6 @@ app.get("/", (req, res) => {
 // Middleware for documentation
 swaggerMiddleware(app);
 
-// Middleware for logging errors
-app.use(errorHandler);
-
 app.use("/api", userRoutes);
 app.use("/api", authRoutes);
 
