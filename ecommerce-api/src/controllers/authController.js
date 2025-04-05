@@ -42,7 +42,7 @@ exports.register = async (req, res) => {
 
     res.status(201).send({ newUser });
   } catch (error) {
-    res.status(500).send({ message: "Internal Server Error", error });
+    next(error);
   }
 };
 
@@ -63,7 +63,6 @@ exports.login = async (req, res) => {
 
     res.status(200).json({ token });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Internal Server Error", error });
+    next(error);
   }
 };

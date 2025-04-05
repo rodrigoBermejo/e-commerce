@@ -1,15 +1,17 @@
 const express = require("express");
 const { param, body, query } = require("express-validator");
 const validate = require("../middlewares/validation");
+const authMiddleware = require("../middlewares/authMiddleware");
 const userController = require("../controllers/userController");
 
 const router = express.Router();
 
-router.get("/user", userController.getUsers);
+router.get("/user", authMiddleware, userController.getUsers);
 
 router.get(
   "/user/:id",
   [param("id").isMongoId().withMessage("Invalid user ID format")],
+  authMiddleware,
   validate,
   userController.getUserById
 );
@@ -23,6 +25,7 @@ router.post(
       .isLength({ min: 6 })
       .withMessage("Password must be at least 6 characters long"),
   ],
+  authMiddleware,
   validate,
   userController.createUser
 );
@@ -38,6 +41,7 @@ router.put(
       .isLength({ min: 6 })
       .withMessage("Password must be at least 6 characters long"),
   ],
+  authMiddleware,
   validate,
   userController.updateUser
 );
@@ -45,6 +49,7 @@ router.put(
 router.delete(
   "/user/:id",
   [param("id").isMongoId().withMessage("Invalid user ID format")],
+  authMiddleware,
   validate,
   userController.deleteUser
 );
