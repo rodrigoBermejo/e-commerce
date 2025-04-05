@@ -9,36 +9,48 @@ const Schema = mongoose.Schema;
  *     User:
  *       type: object
  *       required:
- *         - userName
  *         - displayName
+ *         - userName
  *         - email
  *         - passwordHash
- *         - role
  *       properties:
- *         userName:
+ *         id:
  *           type: string
- *           description: The username of the user
+ *           format: uuid
  *         displayName:
  *           type: string
- *           description: The display name of the user
+ *         userName:
+ *           type: string
  *         email:
  *           type: string
- *           description: The email of the user
  *         passwordHash:
  *           type: string
- *           description: The password of the user
  *         role:
  *           type: string
- *           enum: ['Admin', 'Customer']
- *           description: The role of the user
- *         example:
- *         userId: 60d0fe4f5311236168a109ca
- *         userName: johndoe
+ *           enum: [admin, customer]
+ *         avatar:
+ *           type: string
+ *         phone:
+ *           type: string
+ *         dateOfBirth:
+ *           type: string
+ *           format: date
+ *         isActive:
+ *           type: boolean
+ *           default: true
+ *       example:
+ *         id: 1234567890abcdef12345678
  *         displayName: John Doe
+ *         userName: johndoe
  *         email: johndoe@example.com
- *         passwordHash: password123
- *         role: Admin
+ *         passwordHash: $2b$10$eImiTXuWVx0z8Z4g5J9T1O
+ *         role: customer
+ *         avatar: https://example.com/avatar.png
+ *         phone: 1234567890
+ *         dateOfBirth: '1990-01-01'
+ *         isActive: true
  */
+
 const userSchema = new Schema(
   {
     displayName: {

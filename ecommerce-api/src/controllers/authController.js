@@ -18,28 +18,6 @@ const hashPassword = async (password) => {
   return await bcrypt.hash(password, saltRounds);
 };
 
-/**
- * @swagger
- * /register:
- *   post:
- *     summary: Register a new user
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             item:
- *                $ref: '#/components/models/User'
- *     responses:
- *       201:
- *         description: User registered successfully
- *       400:
- *         description: User already exists
- *       500:
- *         description: Some server error
- */
 exports.register = async (req, res, next) => {
   const { userName, email, password } = req.body;
   const displayName = userName;
@@ -68,6 +46,63 @@ exports.register = async (req, res, next) => {
     errorHandler(error, req, res, next);
   }
 };
+
+exports.login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await checkUserExists(email);
+    if (!user) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    const token = generateToken(user._id, user.userDisplayName, user.role);
+
+    res.status(200).json({ token });
+  } catch (error) {
+    errorHandler(error, req, res, next);
+  }
+};
+
+/**
+ * @swagger
+ * /register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userName
+ *               - email
+ *               - password
+ *             properties:
+ *               userName:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: User already exists
+ *       500:
+ *         description: Some server error
+ */
 
 /**
  * @swagger
@@ -103,24 +138,4 @@ exports.register = async (req, res, next) => {
  *         description: Invalid credentials
  *       500:
  *         description: Some server error
- */
-exports.login = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await checkUserExists(email);
-    if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-    const isMatch = await bcrypt.compare(password, user.passwordHash);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    const token = generateToken(user._id, user.userDisplayName, user.role);
-
-    res.status(200).json({ token });
-  } catch (error) {
-    errorHandler(error, req, res, next);
-  }
-};
+ * */
