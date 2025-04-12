@@ -17,27 +17,37 @@ const Schema = mongoose.Schema;
  *         id:
  *           type: string
  *           format: uuid
+ *           description: The unique identifier for the user
  *         displayName:
  *           type: string
+ *           description: The full name of the user
  *         userName:
  *           type: string
+ *           description: The username of the user
  *         email:
  *           type: string
+ *           description: The email address of the user
  *         passwordHash:
  *           type: string
+ *           description: The hashed password of the user
  *         role:
  *           type: string
  *           enum: [admin, customer]
+ *           description: The role of the user
  *         avatar:
  *           type: string
+ *           description: The URL of the user's avatar
  *         phone:
  *           type: string
+ *           description: The phone number of the user
  *         dateOfBirth:
  *           type: string
  *           format: date
+ *           description: The date of birth of the user
  *         isActive:
  *           type: boolean
  *           default: true
+ *           description: Whether the user is active
  *       example:
  *         id: 1234567890abcdef12345678
  *         displayName: John Doe
@@ -66,6 +76,7 @@ const userSchema = new Schema(
       type: String,
       required: true,
       unique: true,
+      match: [/^\S+@\S+\.\S+$/, "Please use a valid email address"],
     },
     passwordHash: {
       type: String,

@@ -2,6 +2,42 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Cart:
+ *       type: object
+ *       required:
+ *         - userId
+ *         - products
+ *         - totalPrice
+ *       properties:
+ *         userId:
+ *           type: string
+ *           description: The ID of the user who owns the cart
+ *         products:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               productId:
+ *                 type: string
+ *                 description: The ID of the product
+ *               quantity:
+ *                 type: number
+ *                 description: Quantity of the product
+ *         totalPrice:
+ *           type: number
+ *           description: Total price of the cart
+ *       example:
+ *         userId: 1234567890abcdef12345678
+ *         products:
+ *           - productId: 9876543210abcdef12345678
+ *             quantity: 2
+ *         totalPrice: 49.99
+ */
+
 const cartSchema = new Schema(
   {
     userId: {

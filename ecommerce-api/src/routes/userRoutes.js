@@ -1,57 +1,142 @@
 const express = require("express");
-const { param, body, query } = require("express-validator");
-const validate = require("../middlewares/validation");
-const authMiddleware = require("../middlewares/authMiddleware");
 const userController = require("../controllers/userController");
 
 const router = express.Router();
 
-router.get("/user", authMiddleware, userController.getUsers);
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management
+ */
 
-router.get(
-  "/user/:id",
-  [param("id").isMongoId().withMessage("Invalid user ID format")],
-  authMiddleware,
-  validate,
-  userController.getUserById
-);
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Retrieve all users
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: List of users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       500:
+ *         description: Some server error
+ */
+router.get("/", userController.getUsers);
 
-router.post(
-  "/user",
-  [
-    body("userName").notEmpty().withMessage("User name is required"),
-    body("email").isEmail().withMessage("Invalid email"),
-    body("password")
-      .isLength({ min: 6 })
-      .withMessage("Password must be at least 6 characters long"),
-  ],
-  authMiddleware,
-  validate,
-  userController.createUser
-);
+/**
+ * @swagger
+ * /users/{id}:
+ *   get:
+ *     summary: Retrieve a user by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The user ID
+ *     responses:
+ *       200:
+ *         description: User retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Some server error
+ */
+router.get("/:id", userController.getUserById);
 
-router.put(
-  "/user/:id",
-  [
-    param("id").isMongoId().withMessage("Invalid user ID"),
-    body("userName").optional().notEmpty().withMessage("User name is required"),
-    body("email").optional().isEmail().withMessage("Invalid email"),
-    body("password")
-      .optional()
-      .isLength({ min: 6 })
-      .withMessage("Password must be at least 6 characters long"),
-  ],
-  authMiddleware,
-  validate,
-  userController.updateUser
-);
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     summary: Create a new user
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Invalid input
+ *       500:
+ *         description: Some server error
+ */
+router.post("/", userController.createUser);
 
-router.delete(
-  "/user/:id",
-  [param("id").isMongoId().withMessage("Invalid user ID format")],
-  authMiddleware,
-  validate,
-  userController.deleteUser
-);
+/**
+ * @swagger
+ * /users/{id}:
+ *   put:
+ *     summary: Update a user by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The user ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/User'
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Some server error
+ */
+router.put("/:id", userController.updateUser);
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   delete:
+ *     summary: Delete a user by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The user ID
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Some server error
+ */
+router.delete("/:id", userController.deleteUser);
 
 module.exports = router;
