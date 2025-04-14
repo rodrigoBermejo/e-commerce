@@ -4,6 +4,7 @@ const connectDB = require("./src/config/database");
 const errorHandler = require("./src/middlewares/errorHandler");
 const swaggerMiddleware = require("./src/middlewares/swagger");
 const routes = require("./src/routes");
+const initializeData = require("./src/config/initializeData");
 
 require("dotenv").config();
 
@@ -16,7 +17,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: "http://localhost:3001",
+    origin: process.env.REACT_APP_URL || "http://localhost:3000",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
 );
@@ -25,10 +26,13 @@ app.get("/", (req, res) => {
   res.send("API is working");
 });
 
-// Middleware for documentation
+if (process.env.NODE_ENV === "development") {
+  console.log("Development environment, creating mocking data...");
+  initializeData();
+}
+
 swaggerMiddleware(app);
 
-// Routes
 app.use("/api", routes);
 
 app.listen(PORT, () => {
