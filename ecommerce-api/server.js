@@ -9,7 +9,7 @@ const initializeData = require("./src/config/initializeData");
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 3002;
+const PORT = process.env.PORT;
 
 connectDB();
 
@@ -17,7 +17,7 @@ app.use(express.json());
 
 app.use(
   cors({
-    origin: process.env.REACT_APP_URL || "http://localhost:3000",
+    origin: process.env.REACT_APP_URL,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   })
 );

@@ -4,8 +4,8 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const connectDB = async () => {
-  const dbURI = process.env.MONGODB_URI || "mongodb://localhost:27017";
-  const dbName = process.env.MONGODB_DB || "ecommerce-db";
+  const dbURI = process.env.MONGODB_URI;
+  const dbName = process.env.MONGODB_DB;
 
   try {
     await mongoose.connect(`${dbURI}/${dbName}`, {});
