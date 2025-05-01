@@ -19,6 +19,7 @@ app.use(
   cors({
     origin: process.env.REACT_APP_URL,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true,
   })
 );
 
@@ -26,7 +27,7 @@ app.get("/", (req, res) => {
   res.send("API is working");
 });
 
-if (process.env.NODE_ENV === "development") {
+if (process.env.INITIAL_DATA === "development") {
   console.log("Development environment, creating mocking data...");
   initializeData();
 }

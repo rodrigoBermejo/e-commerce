@@ -1,26 +1,8 @@
 const bcrypt = require("bcrypt");
 const faker = require("@faker-js/faker").faker;
-const mongoose = require("mongoose");
 const User = require("../models/user");
 const Category = require("../models/category");
 const Product = require("../models/product");
-
-async function initializeData() {
-  const dbURI = process.env.MONGODB_URI || "mongodb://localhost:27017";
-  const dbName = process.env.MONGODB_DB || "ecommerce-db";
-
-  try {
-    await mongoose.connect(`${dbURI}/${dbName}`, {});
-    await generateUsers();
-    await generateCategories();
-    await generateProducts();
-    console.log("Data initialized successfully");
-    process.exit(0);
-  } catch (error) {
-    console.error("Error on initialize data:", error);
-    process.exit(1);
-  }
-}
 
 async function generateUsers() {
   try {
@@ -158,6 +140,17 @@ async function generateProducts() {
     }
   } catch (error) {
     console.error("Error creating products:", error);
+  }
+}
+
+async function initializeData() {
+  try {
+    await generateUsers();
+    await generateCategories();
+    await generateProducts();
+    console.log("Data initialized successfully");
+  } catch (error) {
+    console.error("Error on initialize data:", error);
   }
 }
 
