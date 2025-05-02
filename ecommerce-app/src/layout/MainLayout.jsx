@@ -4,12 +4,14 @@ import { Box, Container, Menu, MenuItem } from "@mui/material";
 import Header from "./molecules/Header";
 import Footer from "./molecules/Footer";
 import { fetchCategories } from "../services/categoryService";
+import { fetchCart } from "../services/cartService";
 import theme from "../styles/theme";
 
 const MainLayout = ({ children }) => {
   const [categories, setCategories] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [profileMenuAnchor, setProfileMenuAnchor] = useState(null);
+  const [cartCount, setCartCount] = useState(0); // Estado para el contador del carrito
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -21,7 +23,36 @@ const MainLayout = ({ children }) => {
       }
     };
 
+    const loadCart = async () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          // TODO: Obtener el ID del usuario autenticado
+          const userId = "USER_ID";
+          const cart = await fetchCart(userId);
+          const totalItems = cart.products.reduce(
+            (total, item) => total + item.quantity,
+            0
+          );
+          setCartCount(totalItems);
+        } catch (error) {
+          console.error("Error loading cart from API:", error);
+        }
+      } else {
+        const storedCart = localStorage.getItem("cart");
+        if (storedCart) {
+          const cart = JSON.parse(storedCart);
+          const totalItems = cart.reduce(
+            (total, item) => total + item.quantity,
+            0
+          );
+          setCartCount(totalItems);
+        }
+      }
+    };
+
     loadCategories();
+    loadCart();
   }, []);
 
   const handleMenuOpen = (event) => {
@@ -41,13 +72,12 @@ const MainLayout = ({ children }) => {
   };
 
   return (
-    <Box sx={{ backgroundColor: theme.colors.background, minHeight: "100vh" }}>
+    <Box sx={{ backgroundColor: theme.colors.background }}>
       <Header
         onMenuClick={handleMenuOpen}
         onProfileClick={handleProfileMenuOpen}
+        cartCount={cartCount}
       />
-
-      {/* Categories Menu */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
@@ -64,8 +94,6 @@ const MainLayout = ({ children }) => {
           </MenuItem>
         ))}
       </Menu>
-
-      {/* Profile Menu */}
       <Menu
         anchorEl={profileMenuAnchor}
         open={Boolean(profileMenuAnchor)}
@@ -75,11 +103,7 @@ const MainLayout = ({ children }) => {
         <MenuItem onClick={handleProfileMenuClose}>My Profile</MenuItem>
         <MenuItem onClick={handleProfileMenuClose}>Logout</MenuItem>
       </Menu>
-
-      {/* Main Content */}
-      <Container sx={{ mt: 4 }}>{children}</Container>
-
-      {/* Footer */}
+      <Container sx={{ mt: 4, minHeight: "100vh" }}>{children}</Container>
       <Footer />
     </Box>
   );

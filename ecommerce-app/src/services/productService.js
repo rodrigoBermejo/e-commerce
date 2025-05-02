@@ -1,10 +1,10 @@
 import axios from "axios";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = `${process.env.REACT_APP_API_URL}/api/products`;
 
 export const fetchProducts = async () => {
   try {
-    const response = await axios.get(`${API_URL}/api/products`);
+    const response = await axios.get(`${API_URL}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -13,13 +13,11 @@ export const fetchProducts = async () => {
 };
 
 export const fetchProductById = async (id) => {
-  const response = await axios.get(`${API_URL}/api/products/${id}`);
+  const response = await axios.get(`${API_URL}/${id}`);
   return response.data;
 };
 
 export const fetchProductsByCategory = async (categoryId) => {
-  const response = await axios.get(
-    `${API_URL}/api/products/category/${categoryId}`
-  );
+  const response = await axios.get(`${API_URL}/category/${categoryId}`);
   return response.data;
 };

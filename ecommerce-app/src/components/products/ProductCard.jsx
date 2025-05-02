@@ -5,45 +5,85 @@ import {
   CardContent,
   Typography,
   Button,
+  Stack,
+  Chip,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 
+const truncateText = (text, maxLength) =>
+  text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
+
 const ProductCard = ({ product, onAddToCart }) => {
+  const hasStock = product.stock > 0;
+  const showAddToCart = typeof onAddToCart === "function"; // Verificamos si se pasó la función
+
   return (
-    <Card sx={{ maxWidth: 345, margin: "auto" }}>
+    <Card
+      sx={{
+        maxWidth: 345,
+        margin: "auto",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        height: "100%",
+      }}
+    >
       <CardMedia
         component="img"
-        height="140"
-        image={product.imageUrl}
+        height="180"
+        image={product.imageUrl || "https://via.placeholder.com/180"}
         alt={product.name}
+        sx={{ objectFit: "cover" }}
       />
+
       <CardContent>
         <Typography variant="h6" gutterBottom>
           {product.name}
         </Typography>
+
         <Typography variant="body2" color="text.secondary" gutterBottom>
-          {product.description}
+          {truncateText(product.description || "", 100)}
         </Typography>
-        <Typography variant="h6" color="primary" gutterBottom>
-          ${product.price}
-        </Typography>
-        <Button
-          variant="contained"
-          color="primary"
-          fullWidth
-          onClick={() => onAddToCart(product)}
+
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ mb: 1 }}
         >
-          Add to Cart
-        </Button>
-        <Button
-          component={Link}
-          to={`/product/${product._id}`}
-          variant="contained"
-          color="primary"
-          fullWidth
-        >
-          Full details
-        </Button>
+          <Typography variant="h6" color="primary">
+            ${product.price?.toFixed(2) || "0.00"}
+          </Typography>
+          <Chip
+            label={hasStock ? `Stock: ${product.stock}` : "Out of Stock"}
+            color={hasStock ? "success" : "default"}
+            size="small"
+          />
+        </Stack>
+
+        <Stack spacing={1}>
+          {showAddToCart && (
+            <Button
+              variant="contained"
+              color="secondary"
+              fullWidth
+              onClick={() => onAddToCart(product)}
+              disabled={!hasStock}
+            >
+              {hasStock ? "Add to Cart" : "Out of Stock"}
+            </Button>
+          )}
+
+          <Button
+            component={Link}
+            to={`/product/${product._id}`}
+            variant="outlined"
+            color="primary"
+            fullWidth
+          >
+            View Details
+          </Button>
+        </Stack>
       </CardContent>
     </Card>
   );
