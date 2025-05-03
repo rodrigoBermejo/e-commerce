@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 const CartPage = () => {
   const [cart, setCart] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
-  const navigate = useNavigate(); // Crear la función navigate
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadCart = async () => {
@@ -28,7 +28,7 @@ const CartPage = () => {
 
       if (token) {
         try {
-          const userId = "USER_ID"; // Replace with the authenticated user's ID
+          const userId = "USER_ID";
           const cartData = await fetchCart(userId);
           cartItems = cartData.products;
         } catch (error) {
@@ -115,7 +115,7 @@ const CartPage = () => {
   return (
     <MainLayout>
       <Box sx={{ padding: 1 }}>
-        <Typography variant="h4" sx={{ marginBottom: 2, padding: 2 }}>
+        <Typography variant="h4" sx={{ marginBottom: 1, padding: 1 }}>
           Shopping Cart
         </Typography>
         {cart.length > 0 ? (
@@ -190,7 +190,7 @@ const CartPage = () => {
             <Grid size={4}>
               <Paper
                 sx={{
-                  padding: 2,
+                  padding: 1,
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
@@ -210,7 +210,7 @@ const CartPage = () => {
                   variant="contained"
                   color="primary"
                   sx={{ width: "100%" }}
-                  onClick={handleProceedToCheckout} // Llamada a la función para redirigir al checkout
+                  onClick={handleProceedToCheckout}
                 >
                   Proceed to Checkout
                 </Button>

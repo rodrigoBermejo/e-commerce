@@ -13,7 +13,6 @@ const CheckoutPage = () => {
   const [loading, setLoading] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
 
-  // Cargar el carrito y validar autenticación
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -75,7 +74,7 @@ const CheckoutPage = () => {
           proceeding.
         </Typography>
       ) : (
-        <Grid container spacing={4}>
+        <Grid container spacing={1}>
           <Grid item xs={12} md={8}>
             <Box>
               <Typography variant="h6" gutterBottom>
@@ -93,7 +92,7 @@ const CheckoutPage = () => {
           </Grid>
 
           <Grid item xs={12} md={4}>
-            <Box sx={{ padding: 2, border: "1px solid #ddd", borderRadius: 2 }}>
+            <Box sx={{ padding: 1, border: "1px solid #ddd", borderRadius: 2 }}>
               <Typography variant="h6" gutterBottom>
                 Order Summary
               </Typography>
@@ -126,7 +125,7 @@ const CheckoutPage = () => {
                 justifyContent="space-between"
                 alignItems="center"
                 spacing={2}
-                sx={{ marginTop: 2 }}
+                sx={{ marginTop: 1 }}
               >
                 <Button
                   variant="contained"

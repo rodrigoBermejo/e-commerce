@@ -31,7 +31,7 @@ const ProductCard = ({ product, onAddToCart }) => {
       <CardMedia
         component="img"
         height="180"
-        image={product.imageUrl || "https://via.placeholder.com/180"}
+        image={product.imageUrl}
         alt={product.name}
         sx={{ objectFit: "cover" }}
       />

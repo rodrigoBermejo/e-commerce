@@ -6,7 +6,7 @@ const ThankYouPage = () => {
   const navigate = useNavigate();
 
   return (
-    <Box sx={{ textAlign: "center", padding: 4 }}>
+    <Box sx={{ textAlign: "center", padding: 1 }}>
       <Typography variant="h4" gutterBottom>
         Thank you for your purchase!
       </Typography>

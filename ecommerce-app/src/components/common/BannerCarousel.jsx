@@ -15,7 +15,7 @@ const BannerCarousel = ({ banners }) => {
   };
 
   return (
-    <Box sx={{ marginBottom: 4 }}>
+    <Box sx={{ marginBottom: 1 }}>
       <Slider {...settings}>
         {banners.map((banner, index) => (
           <Box

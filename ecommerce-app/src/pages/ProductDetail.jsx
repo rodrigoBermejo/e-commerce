@@ -104,7 +104,7 @@ const ProductDetail = () => {
                 width: "100%",
                 maxHeight: 500,
                 objectFit: "cover",
-                borderRadius: 2,
+                borderRadius: 1,
               }}
             />
           </Grid>

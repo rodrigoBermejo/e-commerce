@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Grid, Typography, CircularProgress } from "@mui/material";
+import { Grid, Typography } from "@mui/material";
 import { fetchProductsByCategory } from "../services/productService";
 import { addProductToCart, fetchCart } from "../services/cartService"; // Asegúrate de importar el cartService
 import MainLayout from "../layout/MainLayout";
@@ -17,7 +17,6 @@ const CategoryPage = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
 
   useEffect(() => {
-    // Cargar productos por categoría
     const loadProducts = async () => {
       try {
         setLoading(true);
@@ -66,7 +65,7 @@ const CategoryPage = () => {
 
   return (
     <MainLayout>
-      <Typography variant="h4" sx={{ marginBottom: 4 }}>
+      <Typography variant="h4" sx={{ marginBottom: 1 }}>
         {categoryName}
       </Typography>
       <Grid container spacing={4}>

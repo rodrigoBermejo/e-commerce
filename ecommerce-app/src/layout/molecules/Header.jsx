@@ -27,7 +27,7 @@ const Header = ({ onProfileClick, cartCount }) => {
               <MenuIcon sx={{ color: theme.colors.primaryText }} />
             </IconButton>
             <Link to="/" style={{ textDecoration: "none" }}>
-              <Logo sx={{ marginLeft: 2 }} />
+              <Logo sx={{ marginLeft: 1 }} />
             </Link>
           </Box>
           <SearchBar />

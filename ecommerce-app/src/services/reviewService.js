@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = `${process.env.REACT_APP_API_URL}/api/reviews`;
+const API_URL = `${process.env.REACT_APP_API_URL}/reviews`;
 
 export const fetchReviewsByProductId = async (productId) => {
   const response = await axios.get(`${API_URL}/${productId}`);

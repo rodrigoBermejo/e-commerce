@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = `${process.env.REACT_APP_API_URL}/api/cart`;
+const API_URL = `${process.env.REACT_APP_API_URL}/cart`;
 
 const getToken = () => localStorage.getItem("token");
 
@@ -8,7 +8,6 @@ const getUserIdFromToken = () => {
   try {
     const token = getToken();
     if (!token) return null;
-
     const payload = JSON.parse(atob(token.split(".")[1]));
     return payload.userId || payload.id || null;
   } catch (error) {
@@ -17,9 +16,38 @@ const getUserIdFromToken = () => {
   }
 };
 
+const syncLocalCartToServer = async (localCart, userId, token) => {
+  try {
+    await Promise.all(
+      localCart.map((item) =>
+        axios.post(
+          API_URL,
+          {
+            userId,
+            productId: item.productId,
+            quantity: item.quantity,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        )
+      )
+    );
+    localStorage.removeItem("cart");
+    const response = await axios.get(`${API_URL}/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error syncing local cart to server:", error);
+    return { products: localCart };
+  }
+};
+
 export const fetchCart = async () => {
   const token = getToken();
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const localCart = JSON.parse(localStorage.getItem("cart")) || [];
+
   if (token) {
     const userId = getUserIdFromToken();
     try {
@@ -28,29 +56,13 @@ export const fetchCart = async () => {
       });
       return response.data;
     } catch (error) {
-      console.error("Error fetching cart:", error);
-      if (cart.length > 0) {
-        try {
-          cart.forEach(async (item) => {
-            try {
-              //await axios.post(`${API_URL}`,{ userId, productId: item.productId, quantity: item.quantity },{ headers: { Authorization: `Bearer ${token}` } });
-              console.log("Product added to cart:", {
-                userId,
-                productId: item.productId,
-                quantity: item.quantity,
-              });
-            } catch (error) {
-              console.error("Error adding product to cart:", error);
-            }
-            return { products: cart };
-          });
-        } catch (error) {
-          console.error("Error fetching cart:", error);
-        }
-      }
+      console.warn(
+        "API cart fetch failed. Attempting sync from localStorage..."
+      );
+      return await syncLocalCartToServer(localCart, userId, token);
     }
   } else {
-    return { products: cart };
+    return { products: localCart };
   }
 };
 
@@ -67,7 +79,7 @@ export const addProductToCart = async (
     const userId = getUserIdFromToken();
     try {
       await axios.post(
-        `${API_URL}`,
+        API_URL,
         { userId, productId, quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -101,13 +113,13 @@ export const removeProductFromCart = async (
   if (token) {
     const userId = getUserIdFromToken();
     try {
-      await axios.delete(`${API_URL}`, {
+      await axios.delete(API_URL, {
         headers: { Authorization: `Bearer ${token}` },
         data: { userId, productId },
       });
       setSnackbarMessage("Product removed from cart");
     } catch (error) {
-      console.error("Error removing product:", error);
+      console.error("Error removing product from cart:", error);
       setSnackbarMessage("Error removing product");
     }
   } else {
