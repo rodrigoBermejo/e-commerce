@@ -12,17 +12,16 @@ const CheckoutPage = () => {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [loading, setLoading] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
     if (!token) {
       navigate("/login");
       return;
     }
 
     const loadCart = async () => {
-      const cartData = await fetchCart(token);
+      const cartData = await fetchCart();
       setCart(cartData.products || []);
       calculateTotal(cartData.products || []);
       setAuthChecked(true);
@@ -132,7 +131,7 @@ const CheckoutPage = () => {
                   color="primary"
                   fullWidth
                   onClick={handleCheckout}
-                  disabled={loading || !address || !paymentMethod}
+                  disabled={(loading || !address || !paymentMethod) && !token}
                 >
                   {loading ? "Processing..." : "Confirm Order"}
                 </Button>

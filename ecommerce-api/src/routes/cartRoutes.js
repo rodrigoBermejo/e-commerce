@@ -95,6 +95,23 @@ router.post(
   cartController.addToCart
 );
 
+router.post(
+  "/sync",
+  authMiddleware,
+  [
+    check("userId").isMongoId().withMessage("Invalid user ID"),
+    check("products")
+      .isArray({ min: 1 })
+      .withMessage("Products array required"),
+    check("products.*.productId").isMongoId().withMessage("Invalid product ID"),
+    check("products.*.quantity")
+      .isInt({ min: 1 })
+      .withMessage("Quantity must be at least 1"),
+  ],
+  validate,
+  cartController.syncCart
+);
+
 /**
  * @swagger
  * /cart:

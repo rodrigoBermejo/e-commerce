@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Grid,
@@ -14,36 +15,29 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import { fetchCart } from "../services/cartService";
 import { fetchProductById } from "../services/productService";
 import MainLayout from "../layout/MainLayout";
-import { useNavigate } from "react-router-dom";
 
 const CartPage = () => {
   const [cart, setCart] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const loadCart = async () => {
-      const token = localStorage.getItem("token");
       let cartItems = [];
 
-      if (token) {
-        try {
-          const userId = "USER_ID";
-          const cartData = await fetchCart(userId);
-          cartItems = cartData.products;
-        } catch (error) {
-          console.error("Error loading cart from API:", error);
-        }
-      } else {
-        const storedCart = localStorage.getItem("cart");
-        if (storedCart) {
-          cartItems = JSON.parse(storedCart);
-        }
+      try {
+        const cartData = await fetchCart();
+        cartItems = cartData.products;
+      } catch (error) {
+        console.error("Error loading cart from API:", error);
       }
 
       const detailedCart = await Promise.all(
         cartItems.map(async (item) => {
-          const product = await fetchProductById(item.productId);
+          const product = await fetchProductById(
+            item.productId._id || item.productId
+          );
           return {
             ...product,
             quantity: item.quantity,
@@ -135,7 +129,7 @@ const CartPage = () => {
                   <Box sx={{ display: "flex", alignItems: "flex-start" }}>
                     <CardMedia
                       component="img"
-                      image={item.imageUrl || "https://via.placeholder.com/100"}
+                      image={item.imageUrl}
                       alt={item.name}
                       sx={{ width: 100, height: 100, marginRight: 2 }}
                     />
@@ -206,11 +200,17 @@ const CartPage = () => {
                 >
                   Total: ${totalPrice.toFixed(2)}
                 </Typography>
+                {!token ? (
+                  <Typography variant="body2" color="text.secondary">
+                    You need to be logged in to proceed with the checkout.
+                  </Typography>
+                ) : null}
                 <Button
                   variant="contained"
                   color="primary"
                   sx={{ width: "100%" }}
                   onClick={handleProceedToCheckout}
+                  disabled={!token}
                 >
                   Proceed to Checkout
                 </Button>

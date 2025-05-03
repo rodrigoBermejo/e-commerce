@@ -11,7 +11,7 @@ const MainLayout = ({ children }) => {
   const [categories, setCategories] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [profileMenuAnchor, setProfileMenuAnchor] = useState(null);
-  const [cartCount, setCartCount] = useState(0); // Estado para el contador del carrito
+  const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -27,9 +27,7 @@ const MainLayout = ({ children }) => {
       const token = localStorage.getItem("token");
       if (token) {
         try {
-          // TODO: Obtener el ID del usuario autenticado
-          const userId = "USER_ID";
-          const cart = await fetchCart(userId);
+          const cart = await fetchCart();
           const totalItems = cart.products.reduce(
             (total, item) => total + item.quantity,
             0
@@ -99,9 +97,21 @@ const MainLayout = ({ children }) => {
         open={Boolean(profileMenuAnchor)}
         onClose={handleProfileMenuClose}
       >
-        <MenuItem onClick={handleProfileMenuClose}>Login</MenuItem>
+        <MenuItem
+          onClick={handleProfileMenuClose}
+          component={Link}
+          to={`/login`}
+        >
+          Login
+        </MenuItem>
         <MenuItem onClick={handleProfileMenuClose}>My Profile</MenuItem>
-        <MenuItem onClick={handleProfileMenuClose}>Logout</MenuItem>
+        <MenuItem
+          onClick={handleProfileMenuClose}
+          component={Link}
+          to={`/login`}
+        >
+          Logout
+        </MenuItem>
       </Menu>
       <Container sx={{ mt: 4, minHeight: "100vh" }}>{children}</Container>
       <Footer />

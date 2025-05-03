@@ -17,30 +17,38 @@ const getUserIdFromToken = () => {
 };
 
 const syncLocalCartToServer = async (localCart, userId, token) => {
-  try {
-    await Promise.all(
-      localCart.map((item) =>
-        axios.post(
-          API_URL,
-          {
-            userId,
-            productId: item.productId,
+  if (localCart.length > 0) {
+    if (!token) {
+      console.error("No token provided");
+      return { products: localCart };
+    }
+    try {
+      const response = await axios.post(
+        `${API_URL}/sync`,
+        {
+          userId,
+          products: localCart.map((item) => ({
+            productId: item.productId._id,
             quantity: item.quantity,
+          })),
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        )
-      )
-    );
-    localStorage.removeItem("cart");
-    const response = await axios.get(`${API_URL}/${userId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error syncing local cart to server:", error);
-    return { products: localCart };
+        }
+      );
+
+      localStorage.removeItem("cart");
+
+      return response.data;
+    } catch (error) {
+      console.error("Error syncing cart:", error?.response?.data || error);
+      return { products: localCart };
+    }
+  } else {
+    return { products: [] };
   }
 };
 
@@ -56,10 +64,9 @@ export const fetchCart = async () => {
       });
       return response.data;
     } catch (error) {
-      console.warn(
-        "API cart fetch failed. Attempting sync from localStorage..."
-      );
-      return await syncLocalCartToServer(localCart, userId, token);
+      if (error?.response?.status === 404) {
+        return await syncLocalCartToServer(localCart, userId, token);
+      }
     }
   } else {
     return { products: localCart };
