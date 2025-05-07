@@ -28,7 +28,7 @@ const CheckoutPage = () => {
     };
 
     loadCart();
-  }, [navigate]);
+  }, [navigate, token]);
 
   const calculateTotal = (products) => {
     const totalAmount = products.reduce(

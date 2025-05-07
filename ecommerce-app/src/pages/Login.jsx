@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import MainLayout from "../layout/MainLayout";
 import LoginForm from "../components/auth/LoginForm";
 
 export default function Login() {
@@ -7,5 +8,9 @@ export default function Login() {
     localStorage.removeItem("token");
   }, []);
 
-  return <LoginForm />;
+  return (
+    <MainLayout>
+      <LoginForm />
+    </MainLayout>
+  );
 }
