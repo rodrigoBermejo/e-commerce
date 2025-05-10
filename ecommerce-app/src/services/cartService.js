@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useCart } from "../context/CartContext";
 
 const API_URL = `${process.env.REACT_APP_API_URL}/cart`;
 
@@ -86,7 +87,8 @@ export const addProductToCart = async (
   product,
   cart,
   setCart,
-  setSnackbarMessage
+  setSnackbarMessage,
+  updateCartCount
 ) => {
   const token = getToken();
   const productId = product._id;
@@ -94,12 +96,19 @@ export const addProductToCart = async (
   if (token) {
     const userId = getUserIdFromToken();
     try {
-      await axios.post(
+      const updatedCart = await axios.post(
         API_URL,
         { userId, productId, quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setSnackbarMessage(`${product.name} added to cart`);
+      if (updateCartCount) {
+        const totalItems = updatedCart.products.reduce(
+          (total, item) => total + item.quantity,
+          0
+        );
+        updateCartCount(totalItems);
+      }
     } catch (error) {
       if (error?.response?.status === 403) {
         localStorage.removeItem("token");
@@ -120,6 +129,13 @@ export const addProductToCart = async (
     localStorage.setItem("cart", JSON.stringify(updatedCart));
     setCart(updatedCart);
     setSnackbarMessage(`${product.name} added to cart`);
+    if (updateCartCount) {
+      const totalItems = updatedCart.reduce(
+        (total, item) => total + item.quantity,
+        0
+      );
+      updateCartCount(totalItems);
+    }
   }
 };
 
