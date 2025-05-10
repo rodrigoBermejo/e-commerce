@@ -1,13 +1,16 @@
+import React, { useEffect } from "react";
+import MainLayout from "../layout/MainLayout";
 import LoginForm from "../components/auth/LoginForm";
 
 export default function Login() {
+  useEffect(() => {
+    document.title = "Login - E-commerce App";
+    localStorage.removeItem("token");
+  }, []);
+
   return (
-    <>
-      <h2>Login</h2>
+    <MainLayout>
       <LoginForm />
-      <p>
-        Don't have an account? <a href="/register">Register here</a>
-      </p>
-    </>
+    </MainLayout>
   );
 }

@@ -73,3 +73,23 @@ exports.deleteProduct = async (req, res, next) => {
     errorHandler(error, req, res, next);
   }
 };
+
+exports.getProductsByCategory = async (req, res, next) => {
+  try {
+    const { categoryId } = req.params;
+
+    const products = await Product.find({ category: categoryId }).populate(
+      "category"
+    );
+
+    if (!products || products.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No products found for this category" });
+    }
+
+    res.status(200).json(products);
+  } catch (error) {
+    errorHandler(error, req, res, next);
+  }
+};
