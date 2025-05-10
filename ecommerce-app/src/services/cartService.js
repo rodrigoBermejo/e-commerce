@@ -44,8 +44,13 @@ const syncLocalCartToServer = async (localCart, userId, token) => {
 
       return response.data;
     } catch (error) {
-      console.error("Error syncing cart:", error?.response?.data || error);
-      return { products: localCart };
+      if (error?.response?.status === 403) {
+        localStorage.removeItem("token");
+        return { products: localCart };
+      } else {
+        console.error("Error syncing cart:", error?.response?.data || error);
+        return { products: localCart };
+      }
     }
   } else {
     return { products: [] };
@@ -66,6 +71,10 @@ export const fetchCart = async () => {
     } catch (error) {
       if (error?.response?.status === 404) {
         return await syncLocalCartToServer(localCart, userId, token);
+      }
+      if (error?.response?.status === 403) {
+        localStorage.removeItem("token");
+        return { products: localCart };
       }
     }
   } else {
@@ -92,8 +101,13 @@ export const addProductToCart = async (
       );
       setSnackbarMessage(`${product.name} added to cart`);
     } catch (error) {
-      console.error("Error adding product to cart:", error);
-      setSnackbarMessage("Error adding to cart");
+      if (error?.response?.status === 403) {
+        localStorage.removeItem("token");
+        setSnackbarMessage("Token expired");
+      } else {
+        console.error("Error adding product to cart:", error);
+        setSnackbarMessage("Error adding to cart");
+      }
     }
   } else {
     const updatedCart = [...cart];
@@ -126,8 +140,13 @@ export const removeProductFromCart = async (
       });
       setSnackbarMessage("Product removed from cart");
     } catch (error) {
-      console.error("Error removing product from cart:", error);
-      setSnackbarMessage("Error removing product");
+      if (error?.response?.status === 403) {
+        localStorage.removeItem("token");
+        setSnackbarMessage("Token expired");
+      } else {
+        console.error("Error removing product from cart:", error);
+        setSnackbarMessage("Error removing product");
+      }
     }
   } else {
     const updatedCart = cart.filter((item) => item.productId !== productId);
@@ -137,7 +156,7 @@ export const removeProductFromCart = async (
   }
 };
 
-export const clearCart = async (setCart, setSnackbarMessage) => {
+export const clearCart = async (setCart) => {
   const token = getToken();
 
   if (token) {
@@ -146,14 +165,14 @@ export const clearCart = async (setCart, setSnackbarMessage) => {
       await axios.delete(`${API_URL}/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setSnackbarMessage("Cart cleared");
     } catch (error) {
-      console.error("Error clearing cart:", error);
-      setSnackbarMessage("Error clearing cart");
+      if (error?.response?.status === 403) {
+        localStorage.removeItem("token");
+      } else {
+        console.error("Error clearing cart:", error);
+      }
     }
   } else {
     localStorage.removeItem("cart");
-    setSnackbarMessage("Cart cleared");
   }
-  setCart([]);
 };

@@ -5,13 +5,11 @@ import {
   Grid,
   Button,
   TextField,
-  Stack,
   Card,
   CardContent,
   CardHeader,
   Divider,
   CircularProgress,
-  Alert,
   Radio,
   RadioGroup,
   FormControlLabel,
@@ -49,6 +47,15 @@ const CheckoutPage = () => {
   const [authChecked, setAuthChecked] = useState(false);
   const [errors, setErrors] = useState({});
   const token = localStorage.getItem("token");
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [selectedPaymentId, setSelectedPaymentId] = useState("");
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [newPayment, setNewPayment] = useState({
+    cardHolder: "",
+    cardNumber: "",
+    expiry: "",
+    type: "Credit Card",
+  });
 
   useEffect(() => {
     if (!token) {
@@ -71,6 +78,25 @@ const CheckoutPage = () => {
         }
 
         setAuthChecked(true);
+
+        // Agregar opción simulada de PayPal
+        setPaymentMethods((prev) => {
+          const alreadyHasPaypal = prev.some(
+            (method) => method._id === "paypal"
+          );
+          if (alreadyHasPaypal) return prev;
+
+          return [
+            ...prev,
+            {
+              _id: "paypal",
+              type: "PayPal",
+              cardHolder: "PayPal Account",
+              cardNumber: "N/A",
+              expiry: "N/A",
+            },
+          ];
+        });
       } catch (err) {
         console.error("Failed to load data:", err);
         setAuthChecked(true);
@@ -101,7 +127,7 @@ const CheckoutPage = () => {
       token
     );
 
-    setShippingAddresses((prev) => [...prev, created.data]);
+    setShippingAddresses((prev) => [...prev, created]);
     setSelectedAddressId(created._id);
     setNewAddress({
       _id: "",
@@ -115,6 +141,31 @@ const CheckoutPage = () => {
     setErrors({});
   };
 
+  const handleAddPaymentMethod = () => {
+    if (
+      !newPayment.cardHolder ||
+      !newPayment.cardNumber ||
+      !newPayment.expiry
+    ) {
+      setErrors({ payment: "All payment fields are required." });
+      return;
+    }
+
+    const fakeId = Math.random().toString(36).substr(2, 9); // Simula un _id
+    const newMethod = { ...newPayment, _id: fakeId };
+
+    setPaymentMethods((prev) => [...prev, newMethod]);
+    setSelectedPaymentId(newMethod._id);
+    setNewPayment({
+      cardHolder: "",
+      cardNumber: "",
+      expiry: "",
+      type: "Credit Card",
+    });
+    setShowPaymentForm(false);
+    setErrors({});
+  };
+
   const handleCheckout = async () => {
     const newErrors = {};
     if (!selectedAddressId)
@@ -123,11 +174,23 @@ const CheckoutPage = () => {
       setErrors(newErrors);
       return;
     }
+    if (!selectedPaymentId)
+      newErrors.payment = "Please select a payment method.";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
     setLoading(true);
+
+    // Aquí simulamos la compra y redirigimos sin enviar datos a una API.
     await clearCart();
-    setLoading(false);
-    navigate("/thank-you");
+    // Esta es la parte que simula el proceso y redirige al "thank-you" directamente.
+    setTimeout(() => {
+      setLoading(false); // Detenemos el loading
+      navigate("/thank-you"); // Redirige a la página de agradecimiento
+    }, 1000); // Simulamos un pequeño retraso de 1 segundo
   };
 
   if (!authChecked || cart === null) {
@@ -181,39 +244,92 @@ const CheckoutPage = () => {
                   value={selectedAddressId}
                   onChange={(e) => setSelectedAddressId(e.target.value)}
                 >
-                  {shippingAddresses.map((addr) => (
-                    <FormControlLabel
-                      key={addr._id}
-                      value={addr._id}
-                      control={<Radio />}
-                      label={`${addr.address}, ${addr.city}, ${addr.state}, ${addr.postalCode}, ${addr.country}`}
-                    />
-                  ))}
+                  {shippingAddresses
+                    .filter((addr) => addr && addr._id)
+                    .map((addr) => (
+                      <FormControlLabel
+                        key={addr._id}
+                        value={addr._id}
+                        control={<Radio />}
+                        label={`${addr.address}, ${addr.city}, ${addr.state}, ${addr.postalCode}, ${addr.country}`}
+                      />
+                    ))}
                 </RadioGroup>
+                <br />
+                <Button
+                  variant="outlined"
+                  sx={{ mt: 2 }}
+                  onClick={() => setShowAddressForm(true)}
+                >
+                  Add New Address
+                </Button>
               </FormControl>
               {errors.address && (
                 <Typography color="error" variant="body2">
                   {errors.address}
                 </Typography>
               )}
-              <Button
-                variant="outlined"
-                sx={{ mt: 2 }}
-                onClick={() => setShowAddressForm(true)}
-              >
-                Add New Address
-              </Button>
             </CardContent>
           </Card>
         </Grid>
 
         {/* Order Summary */}
         <Grid item xs={12} md={5}>
+          {/* Payment */}
+          <Card sx={{ mt: 2 }}>
+            <CardHeader title="Payment Method" />
+            <CardContent>
+              <FormControl component="fieldset">
+                <FormLabel component="legend">
+                  Select a payment method
+                </FormLabel>
+                <RadioGroup
+                  value={selectedPaymentId}
+                  onChange={(e) => setSelectedPaymentId(e.target.value)}
+                >
+                  {paymentMethods.map((method) => (
+                    <FormControlLabel
+                      key={method._id}
+                      value={method._id}
+                      control={<Radio />}
+                      label={
+                        method.type === "PayPal"
+                          ? "PayPal"
+                          : `${method.type} ending in ${method.cardNumber.slice(
+                              -4
+                            )} - ${method.cardHolder}`
+                      }
+                    />
+                  ))}
+                </RadioGroup>
+                <br />
+                <Button
+                  variant="outlined"
+                  sx={{ mt: 2 }}
+                  onClick={() => setShowPaymentForm(true)}
+                >
+                  Add New Payment Method
+                </Button>
+                <Button
+                  variant="outlined"
+                  sx={{ mt: 2 }}
+                  onClick={() => setSelectedPaymentId("paypal")}
+                >
+                  Pay with PayPal
+                </Button>
+              </FormControl>
+              {errors.payment && (
+                <Typography color="error" variant="body2">
+                  {errors.payment}
+                </Typography>
+              )}
+            </CardContent>
+          </Card>
           <Card>
             <CardHeader title="Order Summary" />
             <CardContent>
               <Typography variant="h6">
-                Total: ${cart.totalPrice.toFixed(2)}
+                Total: ${cart?.totalPrice?.toFixed(2)}
               </Typography>
               <Button
                 variant="contained"
@@ -257,6 +373,48 @@ const CheckoutPage = () => {
         <DialogActions>
           <Button onClick={() => setShowAddressForm(false)}>Cancel</Button>
           <Button onClick={handleAddAddress}>Save</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog to add new payment method */}
+      <Dialog open={showPaymentForm} onClose={() => setShowPaymentForm(false)}>
+        <DialogTitle>Add New Payment Method</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Card Holder"
+            value={newPayment.cardHolder}
+            fullWidth
+            margin="dense"
+            onChange={(e) =>
+              setNewPayment({ ...newPayment, cardHolder: e.target.value })
+            }
+          />
+          <TextField
+            label="Card Number"
+            value={newPayment.cardNumber}
+            fullWidth
+            margin="dense"
+            onChange={(e) =>
+              setNewPayment({ ...newPayment, cardNumber: e.target.value })
+            }
+          />
+          <TextField
+            label="Expiry Date"
+            placeholder="MM/YY"
+            value={newPayment.expiry}
+            fullWidth
+            margin="dense"
+            onChange={(e) =>
+              setNewPayment({ ...newPayment, expiry: e.target.value })
+            }
+          />
+          {errors.payment && (
+            <Typography color="error">{errors.payment}</Typography>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowPaymentForm(false)}>Cancel</Button>
+          <Button onClick={handleAddPaymentMethod}>Save</Button>
         </DialogActions>
       </Dialog>
     </MainLayout>
