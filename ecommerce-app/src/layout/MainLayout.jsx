@@ -6,12 +6,14 @@ import Footer from "./molecules/Footer";
 import { fetchCategories } from "../services/categoryService";
 import { fetchCart } from "../services/cartService";
 import theme from "../styles/theme";
+import { useCart } from "../context/CartContext";
 
 const MainLayout = ({ children }) => {
   const [categories, setCategories] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
   const [profileMenuAnchor, setProfileMenuAnchor] = useState(null);
-  const [cartCount, setCartCount] = useState(0);
+  //const [cartCount, setCartCount] = useState(0);
+  const { cart, setCart } = useCart();
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -27,31 +29,20 @@ const MainLayout = ({ children }) => {
       const token = localStorage.getItem("token");
       if (token) {
         try {
-          const cart = await fetchCart();
-          const totalItems = cart.products.reduce(
-            (total, item) => total + item.quantity,
-            0
-          );
-          setCartCount(totalItems);
+          const apiCart = await fetchCart();
+          setCart(apiCart.products);
         } catch (error) {
-          console.error("Error loading cart from API:", error);
+          console.error("Error loading cart:", error);
         }
       } else {
-        const storedCart = localStorage.getItem("cart");
-        if (storedCart) {
-          const cart = JSON.parse(storedCart);
-          const totalItems = cart.reduce(
-            (total, item) => total + item.quantity,
-            0
-          );
-          setCartCount(totalItems);
-        }
+        const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
+        setCart(storedCart);
       }
     };
 
     loadCategories();
     loadCart();
-  }, []);
+  }, [setCart]);
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -74,7 +65,10 @@ const MainLayout = ({ children }) => {
       <Header
         onMenuClick={handleMenuOpen}
         onProfileClick={handleProfileMenuOpen}
-        cartCount={cartCount}
+        cartCount={cart.reduce(
+          (total, item) => total + (item.quantity || 1),
+          0
+        )}
       />
       <Menu
         anchorEl={anchorEl}

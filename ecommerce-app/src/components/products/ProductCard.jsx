@@ -8,26 +8,18 @@ import {
   Stack,
   Chip,
 } from "@mui/material";
+import { useCart } from "../../context/CartContext";
 import { Link } from "react-router-dom";
 
 const truncateText = (text, maxLength) =>
   text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
 
-const ProductCard = ({ product, onAddToCart }) => {
+const ProductCard = ({ product }) => {
   const hasStock = product.stock > 0;
-  const showAddToCart = typeof onAddToCart === "function"; // Verificamos si se pasó la función
+  const { addToCart } = useCart();
 
   return (
-    <Card
-      sx={{
-        maxWidth: 345,
-        margin: "auto",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        height: "100%",
-      }}
-    >
+    <Card sx={{ maxWidth: 345, margin: "auto", height: "100%" }}>
       <CardMedia
         component="img"
         height="180"
@@ -40,7 +32,6 @@ const ProductCard = ({ product, onAddToCart }) => {
         <Typography variant="h6" gutterBottom>
           {product.name}
         </Typography>
-
         <Typography variant="body2" color="text.secondary" gutterBottom>
           {truncateText(product.description || "", 100)}
         </Typography>
@@ -62,18 +53,15 @@ const ProductCard = ({ product, onAddToCart }) => {
         </Stack>
 
         <Stack spacing={1}>
-          {showAddToCart && (
-            <Button
-              variant="contained"
-              color="secondary"
-              fullWidth
-              onClick={() => onAddToCart(product)}
-              disabled={!hasStock}
-            >
-              {hasStock ? "Add to Cart" : "Out of Stock"}
-            </Button>
-          )}
-
+          <Button
+            variant="contained"
+            color="secondary"
+            fullWidth
+            onClick={() => addToCart(product)}
+            disabled={!hasStock}
+          >
+            {hasStock ? "Add to Cart" : "Out of Stock"}
+          </Button>
           <Button
             component={Link}
             to={`/product/${product._id}`}
